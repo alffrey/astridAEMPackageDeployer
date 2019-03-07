@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Deploys the package from S3 bucket to AEM instance.
+Resources:
+  astridAEMPackageDeployer:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      CodeUri: .
+      Description: Deploys the package from S3 bucket to AEM instance.
+      MemorySize: 128
+      Timeout: 3
+      Role: 'arn:aws:iam::998535290607:role/service-role/aemDeployer'
+      Events:
+        BucketEvent1:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: Bucket1
+            Events:
+              - 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .zip
+      Tags:
+        'lambda-console:blueprint': s3-get-object
+  Bucket1:
+    Type: 'AWS::S3::Bucket'
